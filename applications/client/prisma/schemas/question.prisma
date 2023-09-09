@@ -1,0 +1,19 @@
+enum QuestionType {
+    SINGLE_CHOICE
+    MULTIPLE_CHOICE
+    BOOLEAN_CHOICE
+    SHORT_ANSWER
+    LONG_ANSWER
+}
+
+model Question {
+    id      Int          @id @unique @default(autoincrement())
+    text    String
+    answer  Answer?
+    options Options[]
+    type    QuestionType
+    order   Int
+    group   Int
+    poll    Poll         @relation(fields: [pollId], references: [id])
+    pollId  Int
+}

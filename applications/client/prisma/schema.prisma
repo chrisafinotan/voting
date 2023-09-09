@@ -1,0 +1,97 @@
+//******** AUTO GENERATED FILE, DO NOT EDIT.  *********
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Answer {
+  id         Int       @id @default(autoincrement())
+  question   Question  @relation(fields: [questionId], references: [id])
+  questionId Int       @unique
+  value      String
+  Response   Response? @relation(fields: [responseId], references: [id])
+  responseId Int?
+}
+
+model Options {
+  id         Int      @id @default(autoincrement())
+  text       String
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId Int
+}
+
+enum PollType {
+  SINGLE
+  MULTI
+}
+
+enum PollStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Poll {
+  id        Int        @id @default(autoincrement())
+  active    Boolean    @default(true)
+  type      PollType   @default(SINGLE)
+  status    PollStatus @default(IN_PROGRESS)
+  createdAt DateTime   @default(now())
+  expires   DateTime
+  title     String
+  creator   User       @relation("pollCreator", fields: [creatorId], references: [id])
+  creatorId Int
+  members   User[]
+  questions Question[]
+  rating    Int
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  BOOLEAN_CHOICE
+  SHORT_ANSWER
+  LONG_ANSWER
+}
+
+model Question {
+  id      Int          @id @unique @default(autoincrement())
+  text    String
+  answer  Answer?
+  options Options[]
+  type    QuestionType
+  order   Int
+  group   Int
+  poll    Poll         @relation(fields: [pollId], references: [id])
+  pollId  Int
+}
+
+model Response {
+  id           Int            @id @default(autoincrement())
+  answers      Answer[]
+  UserResponse UserResponse[]
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  name         String?
+  pollsCreated Poll[]         @relation("pollCreator")
+  pollsTaken   Poll[]
+  responses    UserResponse[]
+}
+
+model UserResponse {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  response   Response @relation(fields: [responseId], references: [id])
+  submitted  DateTime
+  feedback   String
+  responseId Int
+}

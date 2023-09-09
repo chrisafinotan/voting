@@ -1,0 +1,25 @@
+enum PollType {
+  SINGLE
+  MULTI
+}
+
+enum PollStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Poll {
+  id        Int        @id @default(autoincrement())
+  active    Boolean    @default(true)
+  type      PollType   @default(SINGLE)
+  status    PollStatus @default(IN_PROGRESS)
+  createdAt DateTime   @default(now())
+  expires   DateTime
+  title     String
+  creator   User       @relation("pollCreator", fields: [creatorId], references: [id])
+  creatorId Int
+  members   User[]
+  questions Question[]
+  rating    Int
+}
